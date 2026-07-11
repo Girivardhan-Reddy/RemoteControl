@@ -20,7 +20,7 @@ DOWNLOAD_DIR = APP_DIR / "downloads"
 class AgentConfig:
     """Runtime configuration for the desktop agent."""
 
-    server_url: str = os.getenv("REMOTE_SERVER_URL", "http://127.0.0.1:5000")
+    server_url: str = os.getenv("REMOTE_SERVER_URL", "https://remotecontrol-ef6d.onrender.com")
     api_prefix: str = os.getenv("REMOTE_API_PREFIX", "/api/v1")
     reconnect_delay_seconds: int = int(os.getenv("REMOTE_RECONNECT_DELAY", "5"))
     heartbeat_interval_seconds: int = int(os.getenv("REMOTE_HEARTBEAT_INTERVAL", "30"))
