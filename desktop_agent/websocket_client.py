@@ -43,6 +43,7 @@ class AgentSocketClient:
         self.update = UpdateManager(config)
         self.streaming = False
         self.session_id: str | None = None
+        self._heartbeat_thread: threading.Thread | None = None
         self._register_handlers()
 
     def run_forever(self) -> None:
@@ -59,9 +60,11 @@ class AgentSocketClient:
         token = self.auth_client.access_token()
         device = self.auth_client.load_device() or self.auth_client.register_device()
         LOGGER.info("Connecting Socket.IO to %s for device %s", self.config.server_url, device.get("id"))
-        self.sio.connect(self.config.server_url, transports=["websocket"])
+        self.sio.connect(self.config.server_url, transports=["websocket", "polling"])
         self.sio.emit("agent_connect", {"token": token, "device_id": device["id"]})
-        threading.Thread(target=self._heartbeat_loop, daemon=True).start()
+        if not self._heartbeat_thread or not self._heartbeat_thread.is_alive():
+            self._heartbeat_thread = threading.Thread(target=self._heartbeat_loop, daemon=True)
+            self._heartbeat_thread.start()
 
     def _register_handlers(self) -> None:
         @self.sio.event
@@ -77,6 +80,15 @@ class AgentSocketClient:
         def controller_ready(data):
             self.session_id = (data or {}).get("session_id")
             LOGGER.info("Controller ready for session %s", self.session_id)
+
+        @self.sio.on("agent_connected")
+        def agent_connected(data):
+            device = (data or {}).get("device", {})
+            LOGGER.info("Agent socket accepted for device %s", device.get("id"))
+
+        @self.sio.on("pairing_required")
+        def pairing_required(data):
+            LOGGER.warning("%s", (data or {}).get("message", "Device pairing is required."))
 
         @self.sio.on("remote_command")
         def remote_command(data):

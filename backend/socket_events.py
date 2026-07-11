@@ -38,12 +38,20 @@ def register_socket_events() -> None:
             disconnect()
             return
         device = Device.query.filter_by(id=device_id, owner_id=user_id).first()
-        if not device or not device.is_paired:
+        if not device:
             disconnect()
             return
         DeviceService.set_socket(device_id, request.sid)
         join_room(f"device:{device_id}")
         emit("agent_connected", {"device": device.to_dict()})
+        if not device.is_paired:
+            emit(
+                "pairing_required",
+                {
+                    "device_id": device.id,
+                    "message": "Device is online but must be paired before remote sessions can start.",
+                },
+            )
 
     @socketio.on("controller_join")
     def controller_join(data):

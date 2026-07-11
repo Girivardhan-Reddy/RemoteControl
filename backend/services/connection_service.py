@@ -18,6 +18,8 @@ class ConnectionService:
     def create_session(user_id: str, device_id: str, controller_sid: str | None = None) -> dict:
         """Start a remote session for an online owned device."""
         device = DeviceService.get_owned_device(user_id, device_id)
+        if not device.is_paired:
+            raise ValidationError("Device must be paired before starting a remote session.")
         if device.status != DeviceStatus.ONLINE or not device.socket_sid:
             raise ValidationError("Device is not online.")
 
@@ -64,6 +66,8 @@ class ConnectionService:
         device = Device.query.get(session.device_id)
         if not device or not device.socket_sid:
             raise ValidationError("Device is not connected.")
+        if not device.is_paired:
+            raise ValidationError("Device must be paired before a controller can join.")
         session.controller_sid = controller_sid
         session.agent_sid = device.socket_sid
         db.session.commit()
