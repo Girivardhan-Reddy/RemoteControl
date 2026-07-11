@@ -25,6 +25,8 @@ class FramePacket:
     image: str
     width: int
     height: int
+    image_width: int
+    image_height: int
     quality: int
     captured_at: float
 
@@ -43,6 +45,8 @@ class ScreenStreamer:
         with mss() as capture:
             monitor = capture.monitors[1]
             raw = np.array(capture.grab(monitor))
+        desktop_width = int(monitor["width"])
+        desktop_height = int(monitor["height"])
         rgb = cv2.cvtColor(raw, cv2.COLOR_BGRA2RGB)
         image = Image.fromarray(rgb)
         if image.width > self.config.frame_width:
@@ -55,8 +59,10 @@ class ScreenStreamer:
         self._adjust_quality()
         return FramePacket(
             image=encoded,
-            width=image.width,
-            height=image.height,
+            width=desktop_width,
+            height=desktop_height,
+            image_width=image.width,
+            image_height=image.height,
             quality=self.quality,
             captured_at=time.time(),
         )

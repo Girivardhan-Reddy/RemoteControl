@@ -7,7 +7,10 @@
         android:theme="@style/AppTheme">
         <activity android:name=".ui.SettingsActivity" />
         <activity android:name=".ui.FileManagerActivity" />
-        <activity android:name=".ui.RemoteDesktopActivity" />
+        <activity
+            android:name=".ui.RemoteDesktopActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="sensorLandscape" />
         <activity android:name=".ui.DeviceListActivity" />
         <activity android:name=".ui.RegisterActivity" />
         <activity

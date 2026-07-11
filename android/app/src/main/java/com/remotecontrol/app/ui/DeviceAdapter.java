@@ -30,8 +30,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.Holder> {
     public void onBindViewHolder(@NonNull Holder holder, int position) {
         Device device = devices.get(position);
         holder.name.setText(device.name);
-        holder.status.setText(device.status + (device.is_paired ? " paired" : " unpaired"));
-        holder.connect.setEnabled("online".equals(device.status));
+        holder.status.setText(device.status + (device.is_paired ? " - paired" : " - needs pairing"));
+        holder.details.setText(device.hostname + " / " + device.platform + "\nID: " + device.id);
+        holder.connect.setEnabled(device.is_paired ? "online".equals(device.status) : true);
         holder.connect.setText(device.is_paired ? "Connect" : "Pair");
         holder.connect.setOnClickListener(v -> {
             if (device.is_paired) listener.connect(device);
@@ -43,11 +44,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.Holder> {
     static class Holder extends RecyclerView.ViewHolder {
         TextView name;
         TextView status;
+        TextView details;
         Button connect;
         Holder(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.deviceName);
             status = itemView.findViewById(R.id.deviceStatus);
+            details = itemView.findViewById(R.id.deviceDetails);
             connect = itemView.findViewById(R.id.connectButton);
         }
     }
