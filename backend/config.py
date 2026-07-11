@@ -291,7 +291,7 @@ class ProductionConfig(Config):
 
     SQLALCHEMY_DATABASE_URI = normalize_database_url(
         os.getenv("DATABASE_URL"),
-        production=True,
+        production=False,
     )
 
     @classmethod
@@ -316,38 +316,12 @@ class ProductionConfig(Config):
                 "DATABASE_URL must be set in production."
             )
 
-        print("\n========== DATABASE DEBUG ==========")
-
-        print(
-            "APP_ENV =",
-            os.getenv("APP_ENV"),
-        )
-
-        print(
-            "FLASK_ENV =",
-            os.getenv("FLASK_ENV"),
-        )
-
-        print(
-            "DATABASE_URL =",
-            masked_database_url(
-                os.getenv(
-                    "DATABASE_URL",
-                    "",
-                )
-            ),
-        )
-
-        print(
-            "SQLALCHEMY_DATABASE_URI =",
-            masked_database_url(
-                cls.SQLALCHEMY_DATABASE_URI
-            ),
-        )
-
-        print(
-            "====================================\n"
-        )
+        if not cls.SQLALCHEMY_DATABASE_URI.startswith(
+            ("postgresql://", "postgresql+psycopg://")
+        ):
+            raise RuntimeError(
+                "Production must use PostgreSQL. Refusing to start with SQLite."
+            )
 
 
 class TestingConfig(Config):

@@ -20,13 +20,13 @@ AUTO_CREATE_MISSING_TABLES=false
 Set the Render start command to:
 
 ```text
-gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app
+gunicorn -w 1 --threads 100 --bind 0.0.0.0:$PORT app:app
 ```
 
 If the Render root directory is the repository root, use:
 
 ```text
-cd backend && gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app
+cd backend && gunicorn -w 1 --threads 100 --bind 0.0.0.0:$PORT app:app
 ```
 
 `DATABASE_URL` must start with `postgresql://`. `postgres://` is normalized, but

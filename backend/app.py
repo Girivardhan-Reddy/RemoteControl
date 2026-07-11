@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import eventlet
-
-eventlet.monkey_patch()
+import os
 
 from flask import Flask, jsonify
 
@@ -34,21 +32,14 @@ def create_app() -> Flask:
     cors.init_app(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
     limiter.init_app(app)
     socketio.init_app(
-<<<<<<< HEAD
-    app,
-    cors_allowed_origins="*",
-    async_mode="threading"
-    )
-register_error_handlers(app)
-=======
         app,
         cors_allowed_origins=app.config["SOCKETIO_CORS_ORIGINS"],
-        async_mode="eventlet",
-        logger=True,
-        engineio_logger=True,
+        async_mode="threading",
+        logger=app.config.get("SOCKETIO_LOGGER", False),
+        engineio_logger=app.config.get("SOCKETIO_ENGINEIO_LOGGER", False),
     )
+
     register_error_handlers(app)
->>>>>>> 51163e4 (Fixed backend and Socket.IO issues)
     register_blueprints(app)
     register_socket_events()
 
@@ -103,8 +94,12 @@ register_error_handlers(app)
 
 app = create_app()
 
-import os
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", "5000"))
+    socketio.run(
+        app,
+        host="0.0.0.0",
+        port=port,
+        allow_unsafe_werkzeug=True,
+    )

@@ -8,6 +8,6 @@ Flask-CORS==4.0.1
 Flask-Limiter==3.8.0
 SQLAlchemy==2.0.31
 psycopg[binary]
-eventlet==0.36.1
+simple-websocket==1.0.0
 gunicorn==22.0.0
 python-dotenv==1.0.1
