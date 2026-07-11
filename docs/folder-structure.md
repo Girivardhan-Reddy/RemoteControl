@@ -1,0 +1,35 @@
+# Folder Structure
+
+```text
+RemoteControl/
+  backend/
+    app.py
+    config.py
+    database.py
+    models.py
+    extensions.py
+    socket_events.py
+    routes/
+    services/
+    utils/
+    migrations/
+    scripts/
+  desktop_agent/
+    app.py
+    auth.py
+    websocket_client.py
+    screen.py
+    mouse.py
+    keyboard.py
+    clipboard.py
+    file_manager.py
+    system_info.py
+    startup.py
+    power.py
+    network.py
+    update.py
+  android/
+    app/src/main/java/com/remotecontrol/app/
+    app/src/main/res/
+  docs/
+```

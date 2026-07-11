@@ -1,0 +1,31 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Build
+dist/
+build/
+*.spec
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Android
+.gradle/
+local.properties
+.idea/
+
+# Database
+*.db
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db

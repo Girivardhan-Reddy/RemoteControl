@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: remote-control-backend
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: SOCKETIO_CORS_ORIGINS
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: remote-control-db
+          property: connectionString
+
+databases:
+  - name: remote-control-db
+    plan: starter

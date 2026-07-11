@@ -1,0 +1,8 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <EditText android:id="@+id/pathInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Path" />
+    <Button android:id="@+id/browseButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Browse" />
+    <TextView android:id="@+id/fileOutput" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" />
+</LinearLayout>

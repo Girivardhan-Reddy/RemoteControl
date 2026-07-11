@@ -1,0 +1,10 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+    <EditText android:id="@+id/serverUrl" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Server URL" />
+    <Switch android:id="@+id/darkMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Dark Mode" />
+    <Button android:id="@+id/saveButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Save" />
+    <Button android:id="@+id/logoutButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Logout" />
+</LinearLayout>
