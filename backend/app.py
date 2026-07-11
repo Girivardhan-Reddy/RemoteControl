@@ -29,8 +29,11 @@ def create_app() -> Flask:
     jwt.init_app(app)
     cors.init_app(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
     limiter.init_app(app)
-    socketio.init_app(app, cors_allowed_origins=app.config["SOCKETIO_CORS_ORIGINS"])
-
+    socketio.init_app(
+    app,
+    cors_allowed_origins=app.config["SOCKETIO_CORS_ORIGINS"],
+    async_mode="threading"
+    )
     register_error_handlers(app)
     register_blueprints(app)
     register_socket_events()
