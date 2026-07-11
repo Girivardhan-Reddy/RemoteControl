@@ -17,6 +17,10 @@ The Procfile command is:
 gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app
 ```
 
+Do not use the default plain Gunicorn worker for Socket.IO. The backend calls
+`eventlet.monkey_patch()` before importing Flask, SQLAlchemy, or JWT helpers;
+late monkey patching can break request-local proxies and SQLAlchemy locks.
+
 ## Required Environment Variables
 
 - `APP_ENV=production`

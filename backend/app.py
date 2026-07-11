@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import eventlet
+
+eventlet.monkey_patch()
+
 from flask import Flask, jsonify
 
 from config import ProductionConfig, get_config
@@ -30,11 +34,21 @@ def create_app() -> Flask:
     cors.init_app(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
     limiter.init_app(app)
     socketio.init_app(
+<<<<<<< HEAD
     app,
     cors_allowed_origins="*",
     async_mode="threading"
     )
 register_error_handlers(app)
+=======
+        app,
+        cors_allowed_origins=app.config["SOCKETIO_CORS_ORIGINS"],
+        async_mode="eventlet",
+        logger=True,
+        engineio_logger=True,
+    )
+    register_error_handlers(app)
+>>>>>>> 51163e4 (Fixed backend and Socket.IO issues)
     register_blueprints(app)
     register_socket_events()
 
