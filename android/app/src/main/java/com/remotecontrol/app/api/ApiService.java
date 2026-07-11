@@ -20,6 +20,9 @@ public interface ApiService {
     @GET("devices")
     Call<Device.DeviceListResponse> devices();
 
+    @POST("devices/{id}/pair")
+    Call<Device> pairDevice(@Path("id") String id, @Body Device.PairRequest request);
+
     @POST("connect/sessions")
     Call<Session> createSession(@Body Session.CreateSessionRequest request);
 

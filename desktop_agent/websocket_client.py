@@ -56,10 +56,11 @@ class AgentSocketClient:
                 time.sleep(self.config.reconnect_delay_seconds)
 
     def _connect_once(self) -> None:
-        tokens = self.auth_client.load_tokens() or self.auth_client.refresh()
+        token = self.auth_client.access_token()
         device = self.auth_client.load_device() or self.auth_client.register_device()
+        LOGGER.info("Connecting Socket.IO to %s for device %s", self.config.server_url, device.get("id"))
         self.sio.connect(self.config.server_url, transports=["websocket"])
-        self.sio.emit("agent_connect", {"token": tokens["access_token"], "device_id": device["id"]})
+        self.sio.emit("agent_connect", {"token": token, "device_id": device["id"]})
         threading.Thread(target=self._heartbeat_loop, daemon=True).start()
 
     def _register_handlers(self) -> None:

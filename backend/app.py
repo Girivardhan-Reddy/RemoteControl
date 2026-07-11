@@ -5,7 +5,7 @@ from __future__ import annotations
 from flask import Flask, jsonify
 
 from config import ProductionConfig, get_config
-from database import create_database_schema, init_database
+from database import create_database_schema, init_database, startup_database_check
 from extensions import bcrypt, cors, jwt, limiter, socketio
 from models import RevokedToken, User
 from routes import register_blueprints
@@ -81,6 +81,8 @@ def create_app() -> Flask:
     if app.config.get("ENV") == "development" and app.config.get("AUTO_CREATE_DEV_DB"):
         create_database_schema(app)
 
+    if not app.config.get("SKIP_STARTUP_DB_CHECK"):
+        startup_database_check(app)
     app.logger.info("Remote Control backend started.")
     return app
 

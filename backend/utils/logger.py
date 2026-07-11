@@ -18,7 +18,7 @@ def configure_logging(app) -> None:
     level = getattr(logging, app.config["LOG_LEVEL"].upper(), logging.INFO)
 
     file_handler = RotatingFileHandler(
-        os.path.join(log_dir, "backend.log"),
+        os.path.join(log_dir, "logs.txt"),
         maxBytes=app.config["LOG_MAX_BYTES"],
         backupCount=app.config["LOG_BACKUP_COUNT"],
     )

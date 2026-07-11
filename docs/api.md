@@ -28,6 +28,11 @@ Base path: `/api/v1`.
 - `POST /connect/sessions`
 - `DELETE /connect/sessions/<session_id>`
 
+## Health
+
+- `GET /health`
+- `GET /health/database`
+
 ## Socket.IO
 
 - `agent_connect`

@@ -13,7 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.Holder> {
-    public interface Listener { void connect(Device device); }
+    public interface Listener {
+        void connect(Device device);
+        void pair(Device device);
+    }
     private final Listener listener;
     private final List<Device> devices = new ArrayList<>();
 
@@ -28,8 +31,12 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.Holder> {
         Device device = devices.get(position);
         holder.name.setText(device.name);
         holder.status.setText(device.status + (device.is_paired ? " paired" : " unpaired"));
-        holder.connect.setEnabled("online".equals(device.status) && device.is_paired);
-        holder.connect.setOnClickListener(v -> listener.connect(device));
+        holder.connect.setEnabled("online".equals(device.status));
+        holder.connect.setText(device.is_paired ? "Connect" : "Pair");
+        holder.connect.setOnClickListener(v -> {
+            if (device.is_paired) listener.connect(device);
+            else listener.pair(device);
+        });
     }
     public int getItemCount() { return devices.size(); }
 

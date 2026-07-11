@@ -42,3 +42,17 @@ The backend requires JWT authentication, password hashing, refresh rotation,
 token revocation, device pairing, owner-scoped device access, and authenticated
 Socket.IO events. The desktop agent is intended for authorized machines and
 provides visible local logging and an optional tray indicator.
+
+## Production Setup
+
+Use [docs/end-to-end-deployment.md](docs/end-to-end-deployment.md) for the
+Render + Supabase + Desktop Agent + Android flow.
+
+Useful references:
+
+- [API](docs/api.md)
+- [Testing](docs/testing-guide.md)
+- [Security](docs/security.md)
+- [Desktop build](docs/desktop-build.md)
+- [Desktop GUI](docs/desktop-gui.md)
+- [Android build](docs/android-build.md)

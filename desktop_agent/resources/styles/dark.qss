@@ -1,0 +1,120 @@
+* {
+    font-family: "Segoe UI", "Inter", Arial, sans-serif;
+    font-size: 13px;
+    color: #E6EDF3;
+}
+
+QMainWindow, QWidget#Root {
+    background: #0D1117;
+}
+
+QFrame#Sidebar {
+    background: #111827;
+    border-right: 1px solid #273449;
+}
+
+QLabel#AppTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+QLabel#PageTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+QLabel#Muted, QLabel#CardTitle {
+    color: #8B949E;
+}
+
+QLabel#CardValue {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+QPushButton {
+    background: #1F6FEB;
+    border: 0;
+    border-radius: 7px;
+    padding: 10px 14px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background: #2F81F7;
+}
+
+QPushButton:disabled {
+    background: #30363D;
+    color: #8B949E;
+}
+
+QPushButton#NavButton {
+    text-align: left;
+    background: transparent;
+    color: #C9D1D9;
+    padding-left: 16px;
+}
+
+QPushButton#NavButton:hover {
+    background: #1F2937;
+}
+
+QPushButton#NavButton:checked {
+    background: #1F6FEB;
+    color: #FFFFFF;
+}
+
+QFrame#Panel, QFrame#StatCard {
+    background: #161B22;
+    border: 1px solid #30363D;
+    border-radius: 10px;
+}
+
+QFrame#Toast {
+    background: #1F6FEB;
+    border-radius: 10px;
+    padding: 8px;
+}
+
+QLineEdit, QPlainTextEdit, QTextEdit, QComboBox, QSpinBox {
+    background: #0D1117;
+    border: 1px solid #30363D;
+    border-radius: 7px;
+    padding: 9px;
+    selection-background-color: #1F6FEB;
+}
+
+QSlider::groove:horizontal {
+    height: 6px;
+    background: #30363D;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    width: 16px;
+    background: #58A6FF;
+    margin: -5px 0;
+    border-radius: 8px;
+}
+
+QProgressBar {
+    background: #0D1117;
+    border: 1px solid #30363D;
+    border-radius: 6px;
+    text-align: center;
+}
+
+QProgressBar::chunk {
+    background: #2EA043;
+    border-radius: 5px;
+}
+
+QTableWidget, QListWidget, QTreeView {
+    background: #0D1117;
+    border: 1px solid #30363D;
+    border-radius: 8px;
+    alternate-background-color: #161B22;
+}

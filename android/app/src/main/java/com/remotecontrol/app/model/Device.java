@@ -13,4 +13,9 @@ public class Device {
     public static class DeviceListResponse {
         public List<Device> devices;
     }
+
+    public static class PairRequest {
+        public String pairing_code;
+        public PairRequest(String pairingCode) { this.pairing_code = pairingCode; }
+    }
 }

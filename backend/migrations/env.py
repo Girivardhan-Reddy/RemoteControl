@@ -15,6 +15,7 @@ if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
 os.environ["AUTO_CREATE_DEV_DB"] = "false"
+os.environ["SKIP_STARTUP_DB_CHECK"] = "true"
 
 from app import create_app  # noqa: E402
 from extensions import db  # noqa: E402

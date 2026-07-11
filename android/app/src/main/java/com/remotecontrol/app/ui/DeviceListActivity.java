@@ -2,8 +2,10 @@ package com.remotecontrol.app.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.EditText;
 import android.widget.Button;
 import android.widget.Toast;
+import android.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,7 +24,10 @@ public class DeviceListActivity extends AppCompatActivity {
         super.onCreate(state);
         setContentView(R.layout.activity_device_list);
         RecyclerView recycler = findViewById(R.id.deviceRecycler);
-        adapter = new DeviceAdapter(this::connect);
+        adapter = new DeviceAdapter(new DeviceAdapter.Listener() {
+            public void connect(Device device) { DeviceListActivity.this.connect(device); }
+            public void pair(Device device) { DeviceListActivity.this.pair(device); }
+        });
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(adapter);
         Button refresh = findViewById(R.id.refreshButton);
@@ -55,5 +60,28 @@ public class DeviceListActivity extends AppCompatActivity {
             }
             public void onFailure(Call<Session> call, Throwable t) { Toast.makeText(DeviceListActivity.this, t.getMessage(), Toast.LENGTH_LONG).show(); }
         });
+    }
+
+    private void pair(Device device) {
+        EditText input = new EditText(this);
+        input.setHint("Pairing code");
+        new AlertDialog.Builder(this)
+                .setTitle("Pair " + device.name)
+                .setView(input)
+                .setPositiveButton("Pair", (dialog, which) -> ApiClient.create(this).pairDevice(device.id, new Device.PairRequest(input.getText().toString())).enqueue(new Callback<Device>() {
+                    public void onResponse(Call<Device> call, Response<Device> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(DeviceListActivity.this, "Device paired", Toast.LENGTH_LONG).show();
+                            loadDevices();
+                        } else {
+                            Toast.makeText(DeviceListActivity.this, "Pairing failed", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    public void onFailure(Call<Device> call, Throwable t) {
+                        Toast.makeText(DeviceListActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }))
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }
