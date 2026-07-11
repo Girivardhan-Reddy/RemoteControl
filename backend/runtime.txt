@@ -1,3 +1,0 @@
-git add .
-git commit -m "Use Python 3.12 on Render"
-git push
