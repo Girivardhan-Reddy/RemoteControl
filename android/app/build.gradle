@@ -12,16 +12,47 @@ android {
         targetSdk 35
         versionCode 1
         versionName "1.0.0"
+        
+        // Required for WebRTC native libraries
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    
+    // Enable Java 8 features required by WebRTC
+    packagingOptions {
+        pickFirst 'lib/armeabi-v7a/libjingle_peerconnection_so.so'
+        pickFirst 'lib/arm64-v8a/libjingle_peerconnection_so.so'
+        pickFirst 'lib/x86/libjingle_peerconnection_so.so'
+        pickFirst 'lib/x86_64/libjingle_peerconnection_so.so'
     }
 }
 
 dependencies {
+    // AndroidX
     implementation "androidx.appcompat:appcompat:1.7.0"
     implementation "androidx.recyclerview:recyclerview:1.3.2"
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    
+    // Material Design
     implementation "com.google.android.material:material:1.12.0"
+    
+    // Networking
     implementation "com.squareup.retrofit2:retrofit:2.11.0"
     implementation "com.squareup.retrofit2:converter-gson:2.11.0"
     implementation "com.squareup.okhttp3:okhttp:4.12.0"
+    
+    // Socket.IO
     implementation "io.socket:socket.io-client:2.1.0"
+    
+    // WebRTC
+    implementation "org.webrtc:google-webrtc:1.0.32006"
+    
+    // JSON (required by Socket.IO, excluded if bundled)
+    implementation "org.json:json:20231013"
 }

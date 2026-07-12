@@ -11,3 +11,10 @@ pyperclip==1.9.0
 pystray==0.19.5
 pyinstaller==6.9.0
 PySide6==6.7.2
+
+# WebRTC dependencies
+aiortc==1.9.0
+av==12.3.0
+numpy==2.0.1
+sounddevice==0.4.7
+pyaudio==0.2.14

@@ -17,4 +17,4 @@ android/app/build/
 .vscode/
 
 # Environment
-.env
+.envg
