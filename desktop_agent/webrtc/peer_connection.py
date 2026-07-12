@@ -35,6 +35,8 @@ from aiortc import (
     MediaStreamTrack,
 )
 
+from aiortc.sdp import candidate_from_sdp, candidate_to_sdp
+
 from .video_track import DesktopVideoTrack
 from .audio_track import DesktopAudioTrack
 
@@ -175,6 +177,11 @@ class PeerConnectionManager:
             if self.pc:
                 ice_state = self.pc.iceConnectionState
                 logger.debug(f"ICE connection state: {ice_state}")
+
+        @self.pc.on("icecandidate")
+        async def on_ice_candidate(candidate):
+            if candidate:
+                await self.send_ice_candidate(candidate)
 
         @self.pc.on("icegatheringstatechange")
         async def on_ice_gathering_state_change():
@@ -358,18 +365,9 @@ class PeerConnectionManager:
 
             # Parse and add ICE candidate
             logger.debug(f"Adding ICE candidate: {candidate[:50]}...")
-            ice_candidate = RTCIceCandidate(
-                component=1,  # RTP component
-                foundation="",  # Set by aiortc
-                ip="",  # Set by aiortc
-                port=0,  # Set by aiortc
-                priority=0,  # Set by aiortc
-                protocol="udp",  # Set by aiortc
-                type="",  # Set by aiortc
-                sdpMid=sdp_mid,
-                sdpMLineIndex=sdp_mline_index,
-                candidate=candidate,
-            )
+            ice_candidate = candidate_from_sdp(candidate)
+            ice_candidate.sdpMid = sdp_mid
+            ice_candidate.sdpMLineIndex = sdp_mline_index
 
             await self.pc.addIceCandidate(ice_candidate)
             logger.debug("ICE candidate added successfully")
@@ -395,7 +393,7 @@ class PeerConnectionManager:
             candidate_data = {
                 "device_id": self.device_id,
                 "candidate": {
-                    "candidate": candidate.candidate,
+                    "candidate": candidate_to_sdp(candidate),
                     "sdpMid": candidate.sdpMid,
                     "sdpMLineIndex": candidate.sdpMLineIndex,
                 },
@@ -491,3 +489,5 @@ class PeerConnectionManager:
             "device_id": self.device_id,
             "controller_sid": self.controller_sid,
         }
+
+

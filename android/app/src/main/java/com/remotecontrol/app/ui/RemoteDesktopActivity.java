@@ -26,6 +26,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -311,6 +313,10 @@ public class RemoteDesktopActivity extends AppCompatActivity {
             options.reconnectionDelay = 1000;
             options.reconnectionDelayMax = 6000;
             options.transports = new String[]{"websocket", "polling"};
+            String token = new TokenStore(this).access();
+            if (token != null) {
+                options.query = "token=" + URLEncoder.encode(token, StandardCharsets.UTF_8.name());
+            }
 
             socket = IO.socket(new SettingsStore(this).serverUrl(), options);
             socket.on(Socket.EVENT_CONNECT, args -> joinController());
@@ -446,6 +452,10 @@ public class RemoteDesktopActivity extends AppCompatActivity {
     private int[] mapTouchToRemote(float touchX, float touchY) {
         float viewWidth = Math.max(1, remoteView.getWidth());
         float viewHeight = Math.max(1, remoteView.getHeight());
+        if (remoteWidth <= 1 || remoteHeight <= 1) {
+            remoteWidth = Math.max(1, remoteView.getWidth());
+            remoteHeight = Math.max(1, remoteView.getHeight());
+        }
         float scale = Math.min(viewWidth / remoteWidth, viewHeight / remoteHeight);
         float shownWidth = remoteWidth * scale;
         float shownHeight = remoteHeight * scale;
@@ -466,6 +476,7 @@ public class RemoteDesktopActivity extends AppCompatActivity {
     private JSONObject command(String type) {
         JSONObject object = new JSONObject();
         try {
+            object.put("token", new TokenStore(this).access());
             object.put("session_id", sessionId);
             object.put("type", type);
             object.put("device_id", deviceId);
@@ -596,3 +607,8 @@ public class RemoteDesktopActivity extends AppCompatActivity {
         }
     }
 }
+
+
+
+
+

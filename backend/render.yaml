@@ -5,7 +5,7 @@ services:
     pythonVersion: "3.12.10"
     plan: starter
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -w 1 --threads 100 --bind 0.0.0.0:$PORT app:app
+    startCommand: gunicorn -k eventlet -w 1 --bind 0.0.0.0:$PORT app:app
     envVars:
       - key: APP_ENV
         value: production
@@ -27,3 +27,4 @@ services:
 databases:
   - name: remote-control-db
     plan: starter
+

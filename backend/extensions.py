@@ -7,6 +7,7 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+
 db = SQLAlchemy()
 migrate = Migrate()
 bcrypt = Bcrypt()
@@ -20,7 +21,10 @@ limiter = Limiter(
 
 socketio = SocketIO(
     cors_allowed_origins="*",
-    async_mode="threading",
-    logger=True,
-    engineio_logger=True
+    async_mode="eventlet",
+    ping_interval=20,
+    ping_timeout=60,
+    max_http_buffer_size=1_000_000,
+    logger=False,
+    engineio_logger=False,
 )

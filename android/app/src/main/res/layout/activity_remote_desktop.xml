@@ -3,12 +3,11 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <ImageView
-        android:id="@+id/screenView"
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/remoteView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/screen_border"
-        android:scaleType="fitCenter" />
+        android:background="@drawable/screen_border" />
 
     <Button
         android:id="@+id/keyboardButton"

@@ -64,14 +64,14 @@ class DesktopVideoTrack(VideoStreamTrack):
     QUALITY_PRESETS = {
         "low": {
             "resolution": "hd",  # 720p
-            "scale_factor": 0.5,  # Capture at 50% of target resolution
+            "scale_factor": 1.0,  # Capture at target resolution
         },
         "medium": {
             "resolution": "full_hd",  # 1080p
-            "scale_factor": 0.75,  # Capture at 75% of target resolution
+            "scale_factor": 1.0,  # Capture at target resolution
         },
         "high": {
-            "resolution": "full_hd",  # 1080p
+            "resolution": "qhd",  # 1440p
             "scale_factor": 1.0,  # Capture at full resolution
         },
     }
@@ -98,7 +98,7 @@ class DesktopVideoTrack(VideoStreamTrack):
             quality = "high"
 
         self.quality = quality
-        self.fps = fps
+        self.fps = {"low": 15, "medium": 30, "high": 60}.get(quality, fps)
         self.monitor_index = monitor_index
 
         # Get quality preset configuration
@@ -120,7 +120,7 @@ class DesktopVideoTrack(VideoStreamTrack):
         self._start_time: Optional[float] = None
         self._timestamp = 0
         self._frame_count = 0
-        self._frame_interval = 1.0 / fps
+        self._frame_interval = 1.0 / self.fps
 
         # Performance tracking
         self._last_capture_time = 0
@@ -365,3 +365,4 @@ class DesktopVideoTrack(VideoStreamTrack):
         if self.sct:
             self.sct.close()
         super().stop()
+

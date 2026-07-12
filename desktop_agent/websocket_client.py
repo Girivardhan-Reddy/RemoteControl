@@ -32,7 +32,7 @@ class AgentSocketClient:
     def __init__(self, config: AgentConfig, auth_client: AuthClient) -> None:
         self.config = config
         self.auth_client = auth_client
-        self.sio = socketio.Client(reconnection=False, logger=False, engineio_logger=False)
+        self.sio = socketio.Client(reconnection=True, reconnection_attempts=0, reconnection_delay=1, reconnection_delay_max=10, logger=False, engineio_logger=False)
         
         # Feature modules
         self.screen = ScreenStreamer(config)
@@ -135,7 +135,8 @@ class AgentSocketClient:
         
         self.sio.connect(
             self.config.server_url,
-            transports=["websocket", "polling"]
+            transports=["websocket", "polling"],
+            auth={"token": token},
         )
         
         self.sio.emit("agent_connect", {
@@ -303,11 +304,15 @@ class AgentSocketClient:
 
     def _heartbeat_loop(self) -> None:
         """Send periodic heartbeat to keep connection alive."""
-        while self.sio.connected:
+        while True:
             try:
+                if not self.sio.connected:
+                    time.sleep(1)
+                    continue
                 device = self.auth_client.load_device()
                 if device:
                     self.sio.emit("agent_heartbeat", {
+                        "token": self.auth_client.access_token(),
                         "device_id": device["id"]
                     })
                     self.auth_client.heartbeat()
@@ -388,6 +393,9 @@ class AgentSocketClient:
             
         # Send result back to controller
         self.sio.emit("agent_event", {
+            "token": self.auth_client.access_token(),
+            "device_id": self.device_id,
+            "controller_sid": self.controller_sid,
             "session_id": self.session_id,
             "type": command_type,
             "result": result
@@ -540,3 +548,5 @@ class AgentSocketClient:
 # ============================================================
 # ScreenVideoTrack -> webrtc/video_track.py: DesktopVideoTrack
 # WebRTCManager -> webrtc/peer_connection.py: PeerConnectionManager
+
+

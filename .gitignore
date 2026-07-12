@@ -1,20 +1,37 @@
 # Python virtual environments
 .venv/
 venv/
+env/
 desktop_agent/.venv/
 
 # Python cache
 __pycache__/
 *.pyc
+*.pyo
 
-# Android
+# Android generated output
 .gradle/
 android/.gradle/
+android/build/
 android/app/build/
 
 # IDE
 .idea/
 .vscode/
 
-# Environment
-.envg
+# Logs and temporary files
+*.log
+*.tmp
+backend/logs/
+
+# Environment files
+.env
+.env.*
+!.env.example
+local.properties
+android/local.properties
+
+# Build artifacts
+dist/
+build/
+*.spec.bak

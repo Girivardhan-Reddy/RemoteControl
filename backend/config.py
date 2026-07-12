@@ -291,7 +291,7 @@ class ProductionConfig(Config):
 
     SQLALCHEMY_DATABASE_URI = normalize_database_url(
         os.getenv("DATABASE_URL"),
-        production=False,
+        production=True,
     )
 
     @classmethod
@@ -366,3 +366,4 @@ def get_config() -> type[Config]:
         env_name,
         DevelopmentConfig,
     )
+

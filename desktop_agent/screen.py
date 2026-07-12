@@ -1,80 +1,57 @@
-"""Screen capture and JPEG compression."""
+"""Screen streaming configuration shared by the desktop agent.
+
+Live pixels are sent by ``desktop_agent.webrtc.video_track.DesktopVideoTrack`` over
+WebRTC. This module intentionally no longer captures JPEG screenshots for
+Socket.IO transport.
+"""
 
 from __future__ import annotations
 
-import base64
-import time
 from dataclasses import dataclass
-from io import BytesIO
-
-import cv2
-import numpy as np
-from mss import mss
-from PIL import Image
 
 from config import AgentConfig
-from logger import get_logger
-
-LOGGER = get_logger(__name__)
 
 
-@dataclass
-class FramePacket:
-    """Encoded screen frame."""
+@dataclass(frozen=True)
+class QualityProfile:
+    """Video quality target for the WebRTC desktop track."""
 
-    image: str
+    name: str
     width: int
     height: int
-    image_width: int
-    image_height: int
-    quality: int
-    captured_at: float
+    fps: int
+    start_bitrate_kbps: int
+    max_bitrate_kbps: int
+
+
+QUALITY_PROFILES = {
+    "low": QualityProfile("low", 1280, 720, 15, 900, 1_500),
+    "medium": QualityProfile("medium", 1920, 1080, 30, 2_500, 4_500),
+    "high": QualityProfile("high", 2560, 1440, 60, 5_000, 9_000),
+}
 
 
 class ScreenStreamer:
-    """Capture the primary display at a configurable frame rate."""
+    """Compatibility facade for code that queries screen streaming settings."""
 
     def __init__(self, config: AgentConfig) -> None:
         self.config = config
-        self.quality = config.jpeg_quality
-        self.last_capture_seconds = 0.0
+        self.quality = "medium"
 
-    def capture_frame(self) -> FramePacket:
-        """Capture, resize, compress, and base64-encode a frame."""
-        started = time.perf_counter()
-        with mss() as capture:
-            monitor = capture.monitors[1]
-            raw = np.array(capture.grab(monitor))
-        desktop_width = int(monitor["width"])
-        desktop_height = int(monitor["height"])
-        rgb = cv2.cvtColor(raw, cv2.COLOR_BGRA2RGB)
-        image = Image.fromarray(rgb)
-        if image.width > self.config.frame_width:
-            ratio = self.config.frame_width / image.width
-            image = image.resize((self.config.frame_width, int(image.height * ratio)), Image.Resampling.BILINEAR)
-        buffer = BytesIO()
-        image.save(buffer, format="JPEG", quality=self.quality, optimize=True)
-        encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
-        self.last_capture_seconds = time.perf_counter() - started
-        self._adjust_quality()
-        return FramePacket(
-            image=encoded,
-            width=desktop_width,
-            height=desktop_height,
-            image_width=image.width,
-            image_height=image.height,
-            quality=self.quality,
-            captured_at=time.time(),
-        )
+    def set_quality(self, quality: str) -> QualityProfile:
+        """Select a WebRTC quality profile."""
+        self.quality = quality if quality in QUALITY_PROFILES else "medium"
+        return self.profile
+
+    @property
+    def profile(self) -> QualityProfile:
+        """Return the active quality profile."""
+        return QUALITY_PROFILES[self.quality]
 
     def frame_interval(self) -> float:
-        """Return the target delay between frames."""
-        return 1.0 / max(1, self.config.screen_fps)
+        """Return target frame interval for the selected WebRTC profile."""
+        return 1.0 / self.profile.fps
 
-    def _adjust_quality(self) -> None:
-        """Lower quality under load and recover when capture is fast."""
-        interval = self.frame_interval()
-        if self.last_capture_seconds > interval and self.quality > self.config.min_jpeg_quality:
-            self.quality -= 5
-        elif self.last_capture_seconds < interval * 0.5 and self.quality < self.config.max_jpeg_quality:
-            self.quality += 2
+    def capture_frame(self):
+        """Reject legacy screenshot-over-Socket.IO streaming."""
+        raise RuntimeError("Raw screenshot streaming has been removed; use WebRTC media tracks.")

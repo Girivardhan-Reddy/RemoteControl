@@ -34,7 +34,10 @@ def create_app() -> Flask:
     socketio.init_app(
         app,
         cors_allowed_origins=app.config["SOCKETIO_CORS_ORIGINS"],
-        async_mode="threading",
+        async_mode="eventlet",
+        ping_interval=20,
+        ping_timeout=60,
+        max_http_buffer_size=1_000_000,
         logger=app.config.get("SOCKETIO_LOGGER", False),
         engineio_logger=app.config.get("SOCKETIO_ENGINEIO_LOGGER", False),
     )
@@ -103,3 +106,6 @@ if __name__ == "__main__":
         port=port,
         allow_unsafe_werkzeug=True,
     )
+
+
+

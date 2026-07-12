@@ -51,7 +51,7 @@ dependencies {
     implementation "io.socket:socket.io-client:2.1.0"
     
     // WebRTC
-    implementation "org.webrtc:google-webrtc:1.0.32006"
+    implementation "io.github.webrtc-sdk:android:144.7559.09"
     
     // JSON (required by Socket.IO, excluded if bundled)
     implementation "org.json:json:20231013"
