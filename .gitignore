@@ -1,31 +1,20 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-
-# Virtual environments
+# Python virtual environments
 .venv/
 venv/
 desktop_agent/.venv/
 
-# Logs
-*.log
-
-# IDE files
-.vscode/
-.idea/
-
-# Build files
-build/
-dist/
+# Python cache
+__pycache__/
+*.pyc
 
 # Android
 .gradle/
-local.properties
+android/.gradle/
+android/app/build/
 
-# Database
-*.db
-*.sqlite3
+# IDE
+.idea/
+.vscode/
 
-# Environment files
+# Environment
 .env
