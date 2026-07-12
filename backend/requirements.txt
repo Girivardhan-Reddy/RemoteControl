@@ -11,3 +11,4 @@ psycopg[binary]
 simple-websocket==1.0.0
 gunicorn==22.0.0
 python-dotenv==1.0.1
+supabase==2.15.3
