@@ -4,46 +4,88 @@ from __future__ import annotations
 
 from flask import current_app, request
 from flask_jwt_extended import decode_token
-from flask_socketio import emit
+from flask_socketio import disconnect, emit
+from jwt import ExpiredSignatureError, InvalidTokenError
 
 from extensions import socketio
-from services.signaling_service import SignalingService, SignalingError
+from services.auth_service import AuthService
+from services.signaling_service import SignalingError, SignalingService
 
 
-def _extract_token(data: dict | None = None) -> str | None:
+class SocketAuthError(SignalingError):
+    """Socket authentication failure with a client-readable error code."""
+
+    def __init__(self, message: str, *, code: str = "invalid_token", disconnect_client: bool = True) -> None:
+        super().__init__(message)
+        self.code = code
+        self.disconnect_client = disconnect_client
+
+
+def _extract_token(data: dict | None = None, *, refresh: bool = False) -> str | None:
     payload = data or {}
-    token = payload.get("token") or payload.get("access_token")
-    if not token:
+    token = payload.get("refresh_token") if refresh else payload.get("token") or payload.get("access_token")
+    if not token and not refresh:
         auth_header = request.headers.get("Authorization", "")
         if auth_header.lower().startswith("bearer "):
             token = auth_header.split(" ", 1)[1].strip()
-    if not token:
+    if not token and not refresh:
         token = request.args.get("token")
     return token
+
+
+def _decode_socket_token(token: str, *, refresh: bool = False) -> dict:
+    try:
+        claims = decode_token(token)
+    except ExpiredSignatureError as exc:
+        raise SocketAuthError("Token has expired.", code="token_expired") from exc
+    except InvalidTokenError as exc:
+        raise SocketAuthError("Invalid token.", code="invalid_token") from exc
+    except Exception as exc:  # noqa: BLE001 - normalize library-specific JWT failures.
+        current_app.logger.warning("Socket authentication failed: %s", exc)
+        raise SocketAuthError("Invalid or expired token.", code="invalid_token") from exc
+
+    token_type = claims.get("type")
+    if refresh and token_type != "refresh":
+        raise SocketAuthError("Refresh token is required.", code="refresh_token_required", disconnect_client=False)
+    if not refresh and token_type == "refresh":
+        raise SocketAuthError("Access token is required.", code="access_token_required")
+    return claims
 
 
 def _authenticate(data: dict | None = None) -> str:
     token = _extract_token(data)
     if not token:
-        raise SignalingError("Authentication required.")
-    try:
-        claims = decode_token(token)
-    except Exception as exc:  # noqa: BLE001 - normalize auth failure for socket clients.
-        current_app.logger.warning("Socket authentication failed: %s", exc)
-        raise SignalingError("Invalid or expired token.") from exc
+        raise SocketAuthError("Authentication required.", code="missing_token")
+    claims = _decode_socket_token(token)
     user_id = claims.get("sub")
     if not user_id:
-        raise SignalingError("Invalid token subject.")
+        raise SocketAuthError("Invalid token subject.", code="invalid_subject")
     return str(user_id)
 
 
-def _emit_error(message: str) -> None:
-    emit("error", {"message": message})
+def _emit_error(message: str, *, code: str = "socket_error") -> None:
+    emit("error", {"error": code, "message": message})
+
+
+def _emit_auth_error(exc: SocketAuthError) -> None:
+    emit(
+        "auth_error",
+        {
+            "error": exc.code,
+            "message": str(exc),
+            "refresh_required": exc.code in {"token_expired", "invalid_token"},
+            "reconnect": exc.code == "token_expired",
+        },
+    )
+    if exc.disconnect_client:
+        disconnect()
 
 
 def _handle_error(exc: Exception, fallback: str) -> None:
-    if isinstance(exc, SignalingError):
-        _emit_error(str(exc))
+    if isinstance(exc, SocketAuthError):
+        _emit_auth_error(exc)
+    elif isinstance(exc, SignalingError):
+        _emit_error(str(exc), code="signaling_error")
     else:
         current_app.logger.exception(fallback)
         _emit_error(fallback)
@@ -57,9 +99,22 @@ def register_socket_events() -> None:
         try:
             _authenticate(auth if isinstance(auth, dict) else None)
             emit("socket_ready", {"sid": request.sid})
-        except SignalingError as exc:
-            current_app.logger.info("Rejecting unauthenticated socket: %s", exc)
+        except SocketAuthError as exc:
+            current_app.logger.info("Rejecting socket authentication: %s", exc.code)
             return False
+
+    @socketio.on("refresh_socket_token")
+    def on_refresh_socket_token(data):
+        """Issue a fresh token pair over an existing socket before reconnect."""
+        try:
+            token = _extract_token(data, refresh=True)
+            if not token:
+                raise SocketAuthError("Refresh token is required.", code="missing_refresh_token", disconnect_client=False)
+            claims = _decode_socket_token(token, refresh=True)
+            result = AuthService.refresh(str(claims.get("sub")))
+            emit("token_refreshed", result)
+        except Exception as exc:  # noqa: BLE001
+            _handle_error(exc, "Failed to refresh socket token.")
 
     @socketio.on("agent_connect")
     def on_agent_connect(data):

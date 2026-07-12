@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import wraps
 
-from flask import jsonify, request
+from flask import has_request_context, jsonify, request
 from flask_jwt_extended import get_jwt, verify_jwt_in_request
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
@@ -64,7 +64,7 @@ def write_audit_log(event: str, message: str, *, level: LogLevel = LogLevel.INFO
             level=level,
             user_id=metadata.pop("user_id", None),
             device_id=metadata.pop("device_id", None),
-            ip_address=request.headers.get("X-Forwarded-For", request.remote_addr) if request else None,
+            ip_address=request.headers.get("X-Forwarded-For", request.remote_addr) if has_request_context() else None,
             metadata_json=metadata or None,
         )
         db.session.add(entry)

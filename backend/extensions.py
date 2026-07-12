@@ -20,11 +20,8 @@ limiter = Limiter(
 )
 
 socketio = SocketIO(
+    async_mode="threading",
     cors_allowed_origins="*",
-    async_mode="eventlet",
-    ping_interval=20,
-    ping_timeout=60,
-    max_http_buffer_size=1_000_000,
     logger=False,
     engineio_logger=False,
 )
